@@ -1,0 +1,716 @@
+<title>beautyPOSを動かすまで</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #fbf8f6;
+    --surface: #ffffff;
+    --surface-2: #fff9f6;
+    --ink: #2a2230;
+    --ink-soft: #6b5f68;
+    --ink-faint: #a297a0;
+    --accent: #a6486a;
+    --accent-strong: #8a3959;
+    --accent-soft: #f3e3e8;
+    --gold: #a97a2f;
+    --gold-soft: #f6edd9;
+    --line: #e8ded9;
+    --line-strong: #d8c9c3;
+    --code-bg: #2a2230;
+    --code-text: #f3e9e4;
+    --code-prompt: #e0a860;
+    --code-comment: #9c8b96;
+    --shadow: 0 1px 2px rgba(42,34,48,0.04), 0 8px 24px -12px rgba(42,34,48,0.18);
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 8px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1b1620;
+      --surface: #241d29;
+      --surface-2: #2a2130;
+      --ink: #f1e9ec;
+      --ink-soft: #bfb0b8;
+      --ink-faint: #7d7080;
+      --accent: #e28aa6;
+      --accent-strong: #eda6bc;
+      --accent-soft: #3a2530;
+      --gold: #d9ae68;
+      --gold-soft: #362c1f;
+      --line: #3a3140;
+      --line-strong: #4a3f4c;
+      --code-bg: #14101a;
+      --code-text: #f1e9ec;
+      --code-prompt: #e6b878;
+      --code-comment: #857a88;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #1b1620;
+    --surface: #241d29;
+    --surface-2: #2a2130;
+    --ink: #f1e9ec;
+    --ink-soft: #bfb0b8;
+    --ink-faint: #7d7080;
+    --accent: #e28aa6;
+    --accent-strong: #eda6bc;
+    --accent-soft: #3a2530;
+    --gold: #d9ae68;
+    --gold-soft: #362c1f;
+    --line: #3a3140;
+    --line-strong: #4a3f4c;
+    --code-bg: #14101a;
+    --code-text: #f1e9ec;
+    --code-prompt: #e6b878;
+    --code-comment: #857a88;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Zen Kaku Gothic New", "Hiragino Sans", "Yu Gothic", sans-serif;
+    font-size: 16px;
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent-strong); }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 6rem;
+  }
+
+  /* ---------- Header ---------- */
+
+  header.hero {
+    margin-bottom: 3rem;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    margin-bottom: 1.25rem;
+  }
+
+  h1 {
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.9rem, 5vw, 2.6rem);
+    line-height: 1.35;
+    margin: 0 0 1rem;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+
+  .lede {
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    max-width: 62ch;
+    margin: 0 0 1.75rem;
+  }
+
+  .stack-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chip {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+  }
+
+  /* route map */
+  .route {
+    margin-top: 2.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+  }
+  .route a {
+    text-decoration: none;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-sm);
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .route a:hover { border-color: var(--accent); color: var(--accent-strong); }
+  .route .sep { color: var(--ink-faint); font-size: 0.8rem; }
+
+  /* ---------- Steps ---------- */
+
+  .manual {
+    position: relative;
+  }
+
+  .manual::before {
+    content: "";
+    position: absolute;
+    left: 27px;
+    top: 14px;
+    bottom: 14px;
+    width: 2px;
+    background: repeating-linear-gradient(to bottom, var(--line-strong) 0 6px, transparent 6px 12px);
+  }
+
+  .step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .step-num {
+    position: relative;
+    z-index: 1;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    color: var(--accent-strong);
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-weight: 700;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .step.optional .step-num {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .step-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem 1.6rem 1.7rem;
+    box-shadow: var(--shadow);
+  }
+
+  .step-tag {
+    display: inline-block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 0.4rem;
+  }
+
+  .step h2 {
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    margin: 0 0 0.6rem;
+    color: var(--ink);
+  }
+
+  .step p {
+    margin: 0 0 0.9rem;
+    color: var(--ink-soft);
+  }
+
+  .step p:last-child { margin-bottom: 0; }
+
+  .why {
+    display: flex;
+    gap: 0.55rem;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.95rem;
+    margin: 0 0 1.1rem;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+  .why b { color: var(--ink); font-weight: 700; white-space: nowrap; }
+
+  /* terminal / receipt style command block */
+  .cmd {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1.1rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.86rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin: 0 0 1rem;
+  }
+  .cmd:last-child { margin-bottom: 0; }
+  .cmd .prompt { color: var(--code-prompt); user-select: none; }
+  .cmd .comment { color: var(--code-comment); }
+  .cmd-label {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin: 0 0 0.4rem;
+  }
+
+  .check {
+    display: flex;
+    gap: 0.6rem;
+    align-items: flex-start;
+    background: var(--gold-soft);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 0.95rem;
+    margin-top: 1.1rem;
+    font-size: 0.92rem;
+  }
+  .check .mark {
+    flex-shrink: 0;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    margin-top: 0.1rem;
+  }
+  .check div { color: var(--ink); }
+  .check b { display: block; margin-bottom: 0.15rem; font-family: "Zen Maru Gothic", sans-serif; }
+
+  ol.substeps, ul.substeps {
+    margin: 0 0 1rem;
+    padding-left: 1.3rem;
+  }
+  ol.substeps li, ul.substeps li {
+    margin-bottom: 0.4rem;
+    color: var(--ink-soft);
+  }
+  ol.substeps li::marker, ul.substeps li::marker { color: var(--accent); }
+
+  .kbd {
+    font-family: "JetBrains Mono", monospace;
+    background: var(--surface-2);
+    border: 1px solid var(--line-strong);
+    border-bottom-width: 2px;
+    padding: 0.1rem 0.4rem;
+    border-radius: 5px;
+    font-size: 0.85em;
+    color: var(--ink);
+  }
+
+  /* ---------- Completion ---------- */
+
+  .finish {
+    background: linear-gradient(180deg, var(--accent-soft), var(--surface));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 2rem 1.8rem;
+    text-align: center;
+    margin: 1rem 0 3rem;
+  }
+  .finish .big-mark {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--accent); color: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; margin: 0 auto 1rem;
+  }
+  .finish h2 {
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-size: 1.4rem;
+    margin: 0 0 0.6rem;
+  }
+  .finish p { color: var(--ink-soft); max-width: 46ch; margin: 0 auto; }
+
+  .next-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.9rem;
+    margin-bottom: 3rem;
+  }
+  .next-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 1.1rem 1.2rem;
+  }
+  .next-card .tag {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .next-card h3 {
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-size: 1rem;
+    margin: 0.35rem 0 0.4rem;
+  }
+  .next-card p { font-size: 0.88rem; color: var(--ink-soft); margin: 0; }
+
+  /* troubleshooting */
+  .trouble h2 {
+    font-family: "Zen Maru Gothic", sans-serif;
+    font-size: 1.3rem;
+    margin: 0 0 1rem;
+  }
+  details.qa {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 0.7rem;
+  }
+  details.qa summary {
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--ink);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  details.qa summary::-webkit-details-marker { display: none; }
+  details.qa summary::before {
+    content: "?";
+    flex-shrink: 0;
+    width: 1.4rem; height: 1.4rem;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent-strong);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  details.qa[open] summary { margin-bottom: 0.7rem; }
+  details.qa p { color: var(--ink-soft); margin: 0; padding-left: 2rem; font-size: 0.92rem; }
+
+  footer {
+    margin-top: 3.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  a:focus-visible, summary:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 520px) {
+    .step { grid-template-columns: 44px 1fr; gap: 0.8rem; }
+    .step-num { width: 44px; height: 44px; font-size: 1.05rem; }
+    .manual::before { left: 21px; }
+    .step-card { padding: 1.2rem 1.1rem 1.4rem; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">🧭 セットアップガイド・初心者向け</span>
+    <h1>beautyPOS を、自分のパソコンで動かしてみよう</h1>
+    <p class="lede">
+      beautyPOS は、美容品販売店のレジ業務（商品検索・カート・会計・在庫更新）を再現した練習用アプリです。
+      このページでは、プログラミングの知識が無くても迷わないように、パソコンに何もインストールされていない状態から
+      「ブラウザでレジ画面が開いて、実際に会計できる」ところまでを順番に進めます。
+    </p>
+    <div class="stack-chips">
+      <span class="chip">Java 21</span>
+      <span class="chip">Spring Boot</span>
+      <span class="chip">PostgreSQL</span>
+      <span class="chip">Thymeleaf</span>
+      <span class="chip">Gradle</span>
+    </div>
+    <nav class="route" aria-label="手順の一覧">
+      <a href="#step1">①準備</a><span class="sep">→</span>
+      <a href="#step2">②確認</a><span class="sep">→</span>
+      <a href="#step3">③入手</a><span class="sep">→</span>
+      <a href="#step4">④DB準備</a><span class="sep">→</span>
+      <a href="#step5">⑤ビルド</a><span class="sep">→</span>
+      <a href="#step6">⑥起動</a><span class="sep">→</span>
+      <a href="#step7">⑦動作確認</a><span class="sep">→</span>
+      <a href="#step8">⑧保存</a>
+    </nav>
+  </header>
+
+  <div class="manual">
+
+    <!-- STEP 1 -->
+    <section class="step" id="step1">
+      <div class="step-num">1</div>
+      <div class="step-card">
+        <span class="step-tag">準備するもの</span>
+        <h2>パソコンに必要な道具をそろえる</h2>
+        <p>
+          beautyPOS は「Java」というプログラミング言語で書かれています。動かすには、次の4つの道具が必要です。
+          難しく感じるかもしれませんが、それぞれ一度インストールすれば準備は完了です。
+        </p>
+        <ul class="substeps">
+          <li><b>Java 21</b> — プログラムを実際に動かすための土台（エンジン）</li>
+          <li><b>Git</b> — ソースコード（プログラムの中身）を取得・保存するための道具</li>
+          <li><b>PostgreSQL</b> — 商品や売上のデータをしまっておくデータベース</li>
+          <li><b>VS Code</b> — コードを見たり編集したりするためのアプリ（任意）</li>
+        </ul>
+        <p class="why"><b>WHY</b> Windowsには最初から入っていないため、この4つは自分で用意する必要があります。</p>
+        <div class="cmd-label">PowerShellを開いて、上から順に1行ずつ実行</div>
+        <pre class="cmd"><span class="prompt">&gt;</span> winget install EclipseAdoptium.Temurin.21.JDK
+<span class="prompt">&gt;</span> winget install Git.Git
+<span class="prompt">&gt;</span> winget install PostgreSQL.PostgreSQL
+<span class="prompt">&gt;</span> winget install Microsoft.VisualStudioCode</pre>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b>PostgreSQLのインストール中に「postgresユーザーのパスワード」を聞かれます。ここで決めたパスワードは後で使うので必ずメモしておきましょう。インストーラーが終わったら、一度PowerShellの<b>ウィンドウを閉じて開き直して</b>ください（インストール直後は反映されていないことがあります）。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 -->
+    <section class="step" id="step2">
+      <div class="step-num">2</div>
+      <div class="step-card">
+        <span class="step-tag">インストール確認</span>
+        <h2>4つの道具が正しく入ったか確認する</h2>
+        <p>
+          インストールできたつもりでも、実は失敗していることがあります。次のコマンドで、
+          それぞれのバージョン番号が表示されるかを確認しましょう。ここで確認しておくと、後の工程でのエラーの原因を切り分けやすくなります。
+        </p>
+        <div class="cmd-label">PowerShellで1つずつ実行</div>
+        <pre class="cmd"><span class="prompt">&gt;</span> java -version
+<span class="comment">openjdk version "21.0.x" ... のように表示されればOK</span>
+
+<span class="prompt">&gt;</span> git --version
+<span class="comment">git version 2.x.x のように表示されればOK</span>
+
+<span class="prompt">&gt;</span> psql --version
+<span class="comment">psql (PostgreSQL) 18.x のように表示されればOK</span>
+
+<span class="prompt">&gt;</span> code --version
+<span class="comment">バージョン番号が3行表示されればOK</span></pre>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b>4つとも「コマンドが見つかりません」にならず、バージョン番号が表示されればStep1は完了です。もし見つからない場合は、パソコンを一度再起動してから、もう一度試してください。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 3 -->
+    <section class="step" id="step3">
+      <div class="step-num">3</div>
+      <div class="step-card">
+        <span class="step-tag">プロジェクトの入手</span>
+        <h2>プログラムの中身を自分のパソコンにコピーする</h2>
+        <p>
+          beautyPOS のソースコードは GitHub というサービスに保管されています。
+          「clone（クローン）」というコマンドで、まるごと自分のパソコンにコピーします。
+        </p>
+        <div class="cmd-label">コピー先にしたいフォルダ（例：ドキュメント）で実行</div>
+        <pre class="cmd"><span class="prompt">&gt;</span> git clone https://github.com/maythazinoo12mm/beautyPOS.git
+<span class="prompt">&gt;</span> cd beautyPOS</pre>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b><span class="kbd">beautyPOS</span> という名前のフォルダができていて、中に <span class="kbd">build.gradle</span> や <span class="kbd">src</span> フォルダがあればOKです。</div>
+        </div>
+        <p class="why" style="margin-top:1.1rem;"><b>次に</b> ここから先の作業は、コマンドを直接打つ代わりにVS Codeを使うと見通しが良くなります。</p>
+        <div class="cmd-label">VS Codeでプロジェクトを開く（同じ場所で実行）</div>
+        <pre class="cmd"><span class="prompt">&gt;</span> code .</pre>
+        <ol class="substeps">
+          <li>VS Codeが起動し、左側にbeautyPOSのフォルダ構成が表示される</li>
+          <li>初回は右下に拡張機能のおすすめが出るので「Extension Pack for Java」と「Spring Boot Extension Pack」をインストールする（無くても動くが、コード補完やボタン一つでの起動ができて便利）</li>
+        </ol>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b>VS Code左側のエクスプローラーに <span class="kbd">src</span>・<span class="kbd">docs</span>・<span class="kbd">build.gradle</span> などが見えていればインポート完了です。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 4 -->
+    <section class="step" id="step4">
+      <div class="step-num">4</div>
+      <div class="step-card">
+        <span class="step-tag">データの保管場所</span>
+        <h2>データベースを準備する</h2>
+        <p>
+          商品情報や売上履歴を保存しておく「データベース」と、それを使うための「専用の鍵（ユーザー）」を1回だけ作ります。
+        </p>
+        <div class="why"><b>WHY</b> 誰でもアクセスできると困るので、beautyPOS専用のデータベースと、それ専用のユーザーを分けて作ります。</div>
+        <div class="cmd-label">Windowsのスタートメニューから「SQL Shell (psql)」を開き、そのまま実行</div>
+        <pre class="cmd"><span class="comment">-- Enterを押していくとユーザー名やパスワードを聞かれます</span>
+<span class="comment">-- パスワードはStep1でメモした「postgresユーザーのパスワード」を入力</span>
+
+CREATE DATABASE beautypos;
+CREATE USER beautypos_user WITH PASSWORD 'beautypos_pass';
+GRANT ALL PRIVILEGES ON DATABASE beautypos TO beautypos_user;</pre>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b>それぞれ実行後に <span class="kbd">CREATE DATABASE</span> や <span class="kbd">CREATE ROLE</span> と表示されればOKです。beautyPOS側の接続設定（ユーザー名・パスワード）は、あらかじめこの値に合わせて用意されているので、追加の設定は不要です。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 5 -->
+    <section class="step" id="step5">
+      <div class="step-num">5</div>
+      <div class="step-card">
+        <span class="step-tag">組み立て</span>
+        <h2>プログラムをビルド（組み立て）する</h2>
+        <p>
+          「ビルド」とは、書かれたソースコードをパソコンが実行できる形に組み立てる作業のことです。
+          ここで文法ミスなどがあればエラーとして教えてくれます。
+        </p>
+        <div class="cmd-label">beautyPOSフォルダの中で実行</div>
+        <pre class="cmd"><span class="prompt">&gt;</span> .\gradlew.bat build</pre>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b>最後に <span class="kbd">BUILD SUCCESSFUL</span> と表示されればOKです。初回は関連ファイルのダウンロードが入るため、数分かかることがあります。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 6 -->
+    <section class="step" id="step6">
+      <div class="step-num">6</div>
+      <div class="step-card">
+        <span class="step-tag">起動</span>
+        <h2>アプリを起動する</h2>
+        <p>
+          いよいよ起動です。実行すると、パソコンの中に小さなWebサーバーが立ち上がり、
+          ブラウザからアクセスできるようになります。起動したままにしておく必要があるので、
+          このウィンドウは閉じずに残しておきましょう。
+        </p>
+        <div class="cmd-label">beautyPOSフォルダの中で実行</div>
+        <pre class="cmd"><span class="prompt">&gt;</span> .\gradlew.bat bootRun</pre>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b>ログの最後の方に <span class="kbd">Started SpringBootPracticeApplication</span> と表示されれば起動成功です。このとき裏側では、データベースに商品テーブルや初期商品データが自動的に作られています。</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 7 -->
+    <section class="step" id="step7">
+      <div class="step-num">7</div>
+      <div class="step-card">
+        <span class="step-tag">動作確認</span>
+        <h2>ブラウザで実際に触ってみる</h2>
+        <p>起動したままの状態で、ブラウザを開いて動作を確認しましょう。</p>
+        <ol class="substeps">
+          <li><a href="http://localhost:8080/">http://localhost:8080/</a> を開く → レジ画面が表示される</li>
+          <li>テキスト欄に <span class="kbd">C001</span> と入力して「カートに追加」を押す → 「化粧水」がカートに入る</li>
+          <li>「会計へ進む」→ お預かり金額に <span class="kbd">2000</span> と入力 → お釣りが自動で表示される</li>
+          <li>「支払い確定」を押す → 会計完了画面が表示される</li>
+        </ol>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b>会計完了画面が表示され、<span class="kbd">/items</span>（商品管理）で化粧水の在庫が1つ減っていれば、データベースへの保存まで含めて全て正常に動いています。🎉</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 8 optional -->
+    <section class="step optional" id="step8">
+      <div class="step-num">8</div>
+      <div class="step-card">
+        <span class="step-tag">おまけ・任意</span>
+        <h2>自分で変更を加えたら、GitHubに保存する</h2>
+        <p>
+          コードを書き換えたりドキュメントを更新したりしたら、GitHubに保存（push）しておくと、
+          他のパソコンからも取り出せますし、変更の履歴も残ります。
+        </p>
+        <div class="cmd-label">変更を加えた後、beautyPOSフォルダの中で実行</div>
+        <pre class="cmd"><span class="prompt">&gt;</span> git add .
+<span class="prompt">&gt;</span> git commit -m "変更内容の説明"
+<span class="prompt">&gt;</span> git push</pre>
+        <div class="check">
+          <span class="mark">✓</span>
+          <div><b>できたか確認</b><a href="https://github.com/maythazinoo12mm/beautyPOS" target="_blank" rel="noopener">github.com/maythazinoo12mm/beautyPOS</a> を開いて、最新のコミットが反映されていればOKです。</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="finish">
+    <div class="big-mark">✓</div>
+    <h2>ここまでで、beautyPOSが動く状態になりました</h2>
+    <p>お疲れさまでした。あとは自由に触って、レジ・商品管理・売上履歴の画面を見比べてみてください。</p>
+  </div>
+
+  <div class="next-grid">
+    <div class="next-card">
+      <span class="tag">次にやること</span>
+      <h3>他の画面も見てみる</h3>
+      <p><span class="kbd">/items</span> で商品管理、<span class="kbd">/sales</span> で売上履歴が見られます。</p>
+    </div>
+    <div class="next-card">
+      <span class="tag">テストの実行</span>
+      <h3>自動テストを試す</h3>
+      <p><span class="kbd">.\gradlew.bat test</span> で、データベース不要のテストが一通り実行できます。</p>
+    </div>
+    <div class="next-card">
+      <span class="tag">もっと知る</span>
+      <h3>ドキュメントを読む</h3>
+      <p><span class="kbd">docs</span> フォルダに、業務フローやDB構成、テスト結果がまとまっています。</p>
+    </div>
+  </div>
+
+  <div class="trouble">
+    <h2>うまくいかないときは</h2>
+    <details class="qa">
+      <summary>「ポート8080は使用中です」と出て起動しない</summary>
+      <p>すでに beautyPOS が別のウィンドウで起動したままになっている可能性があります。そのウィンドウを探して <span class="kbd">Ctrl+C</span> で一度止めてから、もう一度 <span class="kbd">.\gradlew.bat bootRun</span> を実行してください。</p>
+    </details>
+    <details class="qa">
+      <summary>データベースに接続できないというエラーが出る</summary>
+      <p>PostgreSQLが起動しているか確認してください。またStep3で作った「beautypos_user」というユーザー名と「beautypos_pass」というパスワードが、他の作業で変更されていないかも確認しましょう。</p>
+    </details>
+    <details class="qa">
+      <summary>winget コマンドが見つからないと言われる</summary>
+      <p>Windows 10/11であれば通常はじめから使えますが、古いバージョンの場合は Microsoft Store から「アプリ インストーラー」を更新すると使えるようになります。</p>
+    </details>
+    <details class="qa">
+      <summary>結局どのフォルダで、どのコマンドを打てばいいか分からなくなった</summary>
+      <p>このガイドのコマンドは、Step2でできた <span class="kbd">beautyPOS</span> フォルダの中で実行するものがほとんどです。エクスプローラーでそのフォルダを開き、アドレスバーに <span class="kbd">powershell</span> と入力してEnterを押すと、そのフォルダを開いた状態でPowerShellが立ち上がります。</p>
+    </details>
+  </div>
+
+  <footer>
+    beautyPOS セットアップガイド　·　美容品販売管理システム（社内学習用）
+  </footer>
+
+</div>
