@@ -1,0 +1,248 @@
+:root {
+	--pink: #e8a1b8;
+	--pink-dark: #d17a9c;
+	--pink-light: #fbeaf0;
+	--gold: #c9a961;
+	--cream: #fffaf6;
+	--text: #4a3b3f;
+	--text-light: #8a7377;
+	--danger: #c0455c;
+	--success: #6b9b6f;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family: "Hiragino Sans", "Yu Gothic", "Segoe UI", sans-serif;
+	background: var(--cream);
+	color: var(--text);
+}
+
+header.site-header {
+	background: linear-gradient(135deg, var(--pink) 0%, var(--pink-dark) 100%);
+	color: #fff;
+	padding: 1.2rem 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+header.site-header .logo {
+	font-size: 1.4rem;
+	font-weight: bold;
+	letter-spacing: 0.05em;
+}
+
+header.site-header .logo::before {
+	content: "\1F338 ";
+}
+
+nav.site-nav a {
+	color: #fff;
+	text-decoration: none;
+	margin-left: 1.5rem;
+	padding: 0.4rem 0.9rem;
+	border-radius: 999px;
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	font-size: 0.9rem;
+	transition: background 0.15s ease;
+}
+
+nav.site-nav a:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+main.page {
+	max-width: 1000px;
+	margin: 2rem auto;
+	padding: 0 1.5rem 3rem;
+}
+
+.card {
+	background: #fff;
+	border-radius: 16px;
+	padding: 1.5rem;
+	box-shadow: 0 2px 10px rgba(209, 122, 156, 0.15);
+	margin-bottom: 1.5rem;
+}
+
+h1.page-title {
+	font-size: 1.5rem;
+	color: var(--pink-dark);
+	border-left: 6px solid var(--gold);
+	padding-left: 0.7rem;
+	margin-top: 0;
+}
+
+h2.section-title {
+	font-size: 1.1rem;
+	color: var(--pink-dark);
+	margin-top: 0;
+}
+
+.btn {
+	display: inline-block;
+	border: none;
+	border-radius: 999px;
+	padding: 0.6rem 1.4rem;
+	font-size: 0.95rem;
+	cursor: pointer;
+	text-decoration: none;
+	color: #fff;
+	background: var(--pink-dark);
+	transition: opacity 0.15s ease;
+}
+
+.btn:hover {
+	opacity: 0.85;
+}
+
+.btn.gold {
+	background: var(--gold);
+}
+
+.btn.danger {
+	background: var(--danger);
+}
+
+.btn.outline {
+	background: #fff;
+	color: var(--pink-dark);
+	border: 1px solid var(--pink-dark);
+}
+
+.btn.large {
+	padding: 0.9rem 2.2rem;
+	font-size: 1.1rem;
+}
+
+input[type="text"],
+input[type="number"] {
+	padding: 0.55rem 0.8rem;
+	border: 1px solid #e6c9d4;
+	border-radius: 8px;
+	font-size: 1rem;
+	background: var(--pink-light);
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus {
+	outline: 2px solid var(--gold);
+	background: #fff;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+th, td {
+	padding: 0.7rem 0.6rem;
+	text-align: left;
+	border-bottom: 1px solid var(--pink-light);
+}
+
+th {
+	color: var(--pink-dark);
+	font-weight: 600;
+}
+
+.form-row {
+	display: flex;
+	gap: 0.8rem;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+	margin-bottom: 1rem;
+}
+
+.form-group label {
+	font-size: 0.85rem;
+	color: var(--text-light);
+}
+
+.total-box {
+	text-align: right;
+	font-size: 1.6rem;
+	color: var(--pink-dark);
+	font-weight: bold;
+	margin: 1rem 0;
+}
+
+.total-box .amount {
+	color: var(--gold);
+}
+
+.message.error {
+	background: #fdeceb;
+	color: var(--danger);
+	padding: 0.8rem 1rem;
+	border-radius: 8px;
+	margin-bottom: 1rem;
+}
+
+.message.info {
+	background: #eef7ef;
+	color: var(--success);
+	padding: 0.8rem 1rem;
+	border-radius: 8px;
+	margin-bottom: 1rem;
+}
+
+.badge {
+	display: inline-block;
+	background: var(--pink-light);
+	color: var(--pink-dark);
+	border-radius: 6px;
+	padding: 0.15rem 0.5rem;
+	font-size: 0.8rem;
+	font-family: monospace;
+}
+
+.actions-cell {
+	white-space: nowrap;
+	display: flex;
+	gap: 0.5rem;
+}
+
+.receipt {
+	font-family: "Courier New", monospace;
+	background: var(--pink-light);
+	border-radius: 12px;
+	padding: 1.5rem;
+}
+
+.receipt hr {
+	border: none;
+	border-top: 1px dashed var(--pink-dark);
+}
+
+dialog.modal {
+	width: min(700px, 90vw);
+	max-height: 80vh;
+	border: none;
+	border-radius: 16px;
+	padding: 1.5rem;
+	box-shadow: 0 8px 30px rgba(74, 59, 63, 0.25);
+}
+
+dialog.modal::backdrop {
+	background: rgba(74, 59, 63, 0.45);
+}
+
+.modal-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 2px solid var(--pink-light);
+	padding-bottom: 0.8rem;
+}

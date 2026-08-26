@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>レジ | Belle Fleur Cosme</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header th:replace="~{fragments/layout :: header}"></header>
+
+	<main class="page">
+		<h1 class="page-title">レジ（お会計）</h1>
+
+		<div class="card">
+			<h2 class="section-title">商品を読み取る</h2>
+			<form th:action="@{/pos/search}" method="post" class="form-row">
+				<input type="text" name="keyword" placeholder="商品コード または 商品名" th:value="${keyword}" autofocus required>
+				<button type="submit" formaction="/pos/quick-add" formnovalidate class="btn">カートに追加</button>
+				<button type="submit" formnovalidate class="btn gold">検索</button>
+			</form>
+			<p class="message info" style="margin-top:0.6rem;">「検索」は文字を入力すると絞り込み、空欄のまま押すと登録済みの商品一覧をポップアップで表示します。</p>
+
+			<p class="message error" th:if="${errorMessage}" th:text="${errorMessage}"></p>
+		</div>
+
+		<dialog id="searchModal" class="modal">
+			<div class="modal-header">
+				<h2 class="section-title" style="margin:0;">商品一覧</h2>
+				<button type="button" class="btn outline" onclick="document.getElementById('searchModal').close()">閉じる</button>
+			</div>
+
+			<form th:action="@{/pos/search}" method="post" class="form-row" style="margin-top:1rem;">
+				<input type="text" name="keyword" placeholder="商品コード または 商品名" th:value="${keyword}">
+				<button type="submit" class="btn gold">検索</button>
+			</form>
+
+			<p class="message error" th:if="${searchError}" th:text="${searchError}"></p>
+
+			<table th:if="${searchResults}" style="margin-top:1rem;">
+				<thead>
+					<tr>
+						<th>商品コード</th>
+						<th>商品名</th>
+						<th>価格</th>
+						<th>在庫</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="result : ${searchResults}">
+						<td><span class="badge" th:text="${result.barcode}"></span></td>
+						<td th:text="${result.name}"></td>
+						<td th:text="${result.price} + '円'"></td>
+						<td th:text="${result.stock}"></td>
+						<td class="actions-cell">
+							<form th:action="@{/pos/cart/add}" method="post">
+								<input type="hidden" name="itemId" th:value="${result.id}">
+								<input type="hidden" name="quantity" value="1">
+								<button type="submit" class="btn">選択してカートに追加</button>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</dialog>
+
+		<script th:if="${searchPerformed}" th:inline="javascript">
+			document.getElementById('searchModal').showModal();
+		</script>
+
+		<div class="card">
+			<h2 class="section-title">カート</h2>
+			<p th:if="${cart.empty}">カートに商品がありません。</p>
+			<table th:unless="${cart.empty}">
+				<thead>
+					<tr>
+						<th>商品コード</th>
+						<th>商品名</th>
+						<th>単価</th>
+						<th>数量</th>
+						<th>小計</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="line : ${cart.items}">
+						<td><span class="badge" th:text="${line.barcode}"></span></td>
+						<td th:text="${line.name}"></td>
+						<td th:text="${line.unitPrice} + '円'"></td>
+						<td th:text="${line.quantity}"></td>
+						<td th:text="${line.subtotal} + '円'"></td>
+						<td class="actions-cell">
+							<form th:action="@{/pos/cart/remove/{id}(id=${line.itemId})}" method="post">
+								<button type="submit" class="btn danger">削除</button>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+
+			<div class="total-box">
+				合計: <span class="amount" th:text="${cart.total} + '円'"></span>
+			</div>
+
+			<div class="form-row">
+				<a th:href="@{/pos/payment}" class="btn large gold" th:classappend="${cart.empty} ? 'disabled' : ''"
+					th:if="${!cart.empty}">会計へ進む</a>
+				<form th:action="@{/pos/new}" method="post">
+					<button type="submit" class="btn outline">カートを空にする</button>
+				</form>
+			</div>
+		</div>
+	</main>
+</body>
+</html>

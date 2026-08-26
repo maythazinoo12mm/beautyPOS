@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>売上履歴 | Belle Fleur Cosme</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header th:replace="~{fragments/layout :: header}"></header>
+
+	<main class="page">
+		<h1 class="page-title">売上履歴</h1>
+
+		<div class="card">
+			<p th:if="${sales.empty}">まだ売上がありません。</p>
+			<table th:unless="${sales.empty}">
+				<thead>
+					<tr>
+						<th>売上番号</th>
+						<th>日時</th>
+						<th>点数</th>
+						<th>合計金額</th>
+						<th>お預かり</th>
+						<th>お釣り</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="sale : ${sales}">
+						<td th:text="${sale.id}"></td>
+						<td th:text="${#temporals.format(sale.saleDateTime, 'yyyy/MM/dd HH:mm')}"></td>
+						<td th:text="${sale.saleItems.size()}"></td>
+						<td th:text="${sale.totalAmount} + '円'"></td>
+						<td th:text="${sale.receivedAmount} + '円'"></td>
+						<td th:text="${sale.changeAmount} + '円'"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</main>
+</body>
+</html>

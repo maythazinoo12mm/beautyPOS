@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>お会計完了 | Belle Fleur Cosme</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header th:replace="~{fragments/layout :: header}"></header>
+
+	<main class="page">
+		<h1 class="page-title">お会計が完了しました</h1>
+
+		<div class="card">
+			<p class="message info">ご購入ありがとうございました。在庫を更新しました。</p>
+
+			<div class="receipt">
+				<div>売上番号: <span th:text="${sale.id}"></span></div>
+				<div>日時: <span th:text="${#temporals.format(sale.saleDateTime, 'yyyy/MM/dd HH:mm')}"></span></div>
+				<hr>
+				<table>
+					<tr th:each="line : ${sale.saleItems}">
+						<td th:text="${line.itemName}"></td>
+						<td th:text="'x' + ${line.quantity}"></td>
+						<td th:text="${line.subtotal} + '円'"></td>
+					</tr>
+				</table>
+				<hr>
+				<div>合計: <strong th:text="${sale.totalAmount} + '円'"></strong></div>
+				<div>お預かり: <span th:text="${sale.receivedAmount} + '円'"></span></div>
+				<div>お釣り: <span th:text="${sale.changeAmount} + '円'"></span></div>
+			</div>
+
+			<div class="form-row" style="margin-top:1.5rem;">
+				<a th:href="@{/pos}" class="btn large gold">次のお会計へ</a>
+			</div>
+		</div>
+	</main>
+</body>
+</html>

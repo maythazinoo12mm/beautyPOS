@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew.bat test *)",
+      "Bash(tail -80 /tmp/bootrun.log)",
+      "Read(//tmp/**)",
+      "Bash(rm -f cookies.txt)",
+      "Bash(curl -s -c cookies.txt -b cookies.txt http://localhost:8080/pos)",
+      "Bash(curl -s -c cookies.txt -b cookies.txt -X POST http://localhost:8080/pos/search --data-urlencode \"keyword=C001\")",
+      "Bash(curl -s -c cookies.txt -b cookies.txt -X POST http://localhost:8080/pos/cart/add --data \"itemId=1&quantity=2\" -o /dev/null -w \"status=%{http_code} redirect=%{redirect_url}\\\\n\")",
+      "Bash(curl -s -c cookies.txt -b cookies.txt -X POST http://localhost:8080/pos/search --data-urlencode \"keyword=口紅\")",
+      "Bash(curl -s -c cookies.txt -b cookies.txt -X POST http://localhost:8080/pos/cart/add --data \"itemId=3&quantity=1\" -o /dev/null -w \"status=%{http_code}\\\\n\")"
+    ]
+  }
+}

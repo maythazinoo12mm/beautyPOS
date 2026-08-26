@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>商品管理 | Belle Fleur Cosme</title>
+	<link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+	<header th:replace="~{fragments/layout :: header}"></header>
+
+	<main class="page">
+		<h1 class="page-title">商品管理</h1>
+
+		<div class="card">
+			<div class="form-row" style="justify-content: space-between;">
+				<h2 class="section-title" style="margin:0;">商品一覧</h2>
+				<a th:href="@{/items/new}" class="btn gold">新規登録</a>
+			</div>
+
+			<table>
+				<thead>
+					<tr>
+						<th>商品コード</th>
+						<th>商品名</th>
+						<th>価格</th>
+						<th>在庫</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="item : ${items}">
+						<td><span class="badge" th:text="${item.barcode}"></span></td>
+						<td th:text="${item.name}"></td>
+						<td th:text="${item.price} + '円'"></td>
+						<td th:text="${item.stock}"></td>
+						<td class="actions-cell">
+							<a th:href="@{/items/{id}/edit(id=${item.id})}" class="btn outline">編集</a>
+							<form th:action="@{/items/{id}/delete(id=${item.id})}" method="post"
+								onsubmit="return confirm('削除しますか？');">
+								<button type="submit" class="btn danger">削除</button>
+							</form>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</main>
+</body>
+</html>
