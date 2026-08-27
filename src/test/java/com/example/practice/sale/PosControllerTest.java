@@ -1,5 +1,6 @@
 package com.example.practice.sale;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -15,6 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.practice.item.Item;
+import com.example.practice.item.ItemService;
+
 /**
  * 空欄でのクイック追加の回帰テスト（2026-08-25にpos.htmlのボタンへformnovalidateを追加して修正）。
  */
@@ -24,6 +28,9 @@ class PosControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Autowired
+	private ItemService itemService;
 
 	@Test
 	void quickAdd_blankKeyword_showsGuidanceMessageWithoutError() throws Exception {
@@ -88,5 +95,100 @@ class PosControllerTest {
 		mockMvc.perform(post("/pos/checkout").param("receivedAmount", "2000").session(session))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/pos/receipt"));
+	}
+
+	@Test
+	void checkout_multipleDifferentItems_redirectsToReceipt() throws Exception {
+		MockHttpSession session = new MockHttpSession();
+		mockMvc.perform(post("/pos/quick-add").param("keyword", "C001").session(session));
+		mockMvc.perform(post("/pos/quick-add").param("keyword", "C003").session(session));
+
+		mockMvc.perform(post("/pos/checkout").param("receivedAmount", "5000").session(session))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/pos/receipt"));
+	}
+
+	@Test
+	void checkout_insufficientStock_redirectsToPaymentWithError() throws Exception {
+		Item lowStockItem = itemService.create(new Item("T300", "在庫不足テスト商品", 500, 1));
+		MockHttpSession session = new MockHttpSession();
+		mockMvc.perform(post("/pos/cart/add")
+				.param("itemId", String.valueOf(lowStockItem.getId()))
+				.param("quantity", "5")
+				.session(session));
+
+		mockMvc.perform(post("/pos/checkout").param("receivedAmount", "10000").session(session))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/pos/payment"));
+
+		assertThat(itemService.findById(lowStockItem.getId()).getStock()).isEqualTo(1);
+	}
+
+	@Test
+	void search_blankKeyword_showsAllItemsInResults() throws Exception {
+		mockMvc.perform(post("/pos/search").param("keyword", ""))
+				.andExpect(status().isOk())
+				.andExpect(view().name("pos"))
+				.andExpect(content().string(containsString("化粧水")));
+	}
+
+	@Test
+	void search_unknownKeyword_showsNotFoundMessage() throws Exception {
+		mockMvc.perform(post("/pos/search").param("keyword", "ZZZZ"))
+				.andExpect(status().isOk())
+				.andExpect(content().string(containsString("商品が見つかりません: ZZZZ")));
+	}
+
+	@Test
+	void cartAdd_byItemId_addsToCartAndRedirects() throws Exception {
+		Item item = itemService.create(new Item("T301", "カート追加テスト", 700, 5));
+		MockHttpSession session = new MockHttpSession();
+
+		mockMvc.perform(post("/pos/cart/add")
+						.param("itemId", String.valueOf(item.getId()))
+						.param("quantity", "2")
+						.session(session))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/pos"));
+
+		mockMvc.perform(get("/pos").session(session))
+				.andExpect(content().string(containsString("カート追加テスト")));
+	}
+
+	@Test
+	void cartRemove_removesItemFromCart() throws Exception {
+		MockHttpSession session = new MockHttpSession();
+		mockMvc.perform(post("/pos/quick-add").param("keyword", "C001").session(session));
+
+		mockMvc.perform(post("/pos/cart/remove/{itemId}", itemService.findByCodeOrName("C001").getId())
+						.session(session))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/pos"));
+
+		mockMvc.perform(get("/pos").session(session))
+				.andExpect(content().string(containsString("カートに商品がありません")));
+	}
+
+	@Test
+	void newSale_clearsCart() throws Exception {
+		MockHttpSession session = new MockHttpSession();
+		mockMvc.perform(post("/pos/quick-add").param("keyword", "C001").session(session));
+
+		mockMvc.perform(post("/pos/new").session(session))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("/pos"));
+
+		mockMvc.perform(get("/pos").session(session))
+				.andExpect(content().string(containsString("カートに商品がありません")));
+	}
+
+	@Test
+	void paymentForm_showsTotalForCurrentCart() throws Exception {
+		MockHttpSession session = new MockHttpSession();
+		mockMvc.perform(post("/pos/quick-add").param("keyword", "C001").session(session));
+
+		mockMvc.perform(get("/pos/payment").session(session))
+				.andExpect(status().isOk())
+				.andExpect(content().string(containsString("1200円")));
 	}
 }
