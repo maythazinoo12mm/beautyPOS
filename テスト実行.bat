@@ -17,5 +17,12 @@ echo ============================================
 start "" "%~dp0build\reports\tests\test\index.html"
 
 echo.
+echo ============================================
+echo  Opening the coverage report in your browser...
+echo  (shows how much of the code is tested)
+echo ============================================
+start "" "%~dp0build\reports\jacoco\test\html\index.html"
+
+echo.
 echo You can close this window now.
 pause >nul
